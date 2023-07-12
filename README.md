@@ -6,8 +6,6 @@ HamroShare is a minimal web-application that lets you apply for IPOs from multip
 Note: This programe was made with intention of learning more of ReactJS .
 I am not a professional ReactJS Dev . Saying that , i hope i am not bullied for my way of code.😔
 
-![Logo](src/assets/images/logo_v2.png)
-
 ## 🚀 Live Demo
 
 https://dineshtiwari69.github.io/HamroShare/
