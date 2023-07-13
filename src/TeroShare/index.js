@@ -1,12 +1,12 @@
 import retry from "async-retry";
 import { fetchUserDetails } from "../helpers/storage";
 
-let BASEURI = "https://backend.cdsc.com.np"
-if(navigator.userAgent.includes("Electron")){
+//let BASEURI = "https://backend.cdsc.com.np"
+//if(navigator.userAgent.includes("Electron")){
   console.log("ELECTRON CLient Detected, using web API ");
-  BASEURI = "https://webbackend.cdsc.com.np"
+ let BASEURI = "https://webbackend.cdsc.com.np"
 
-}
+//}
 
 const login = async (clientId, username, password) =>
   retry(async () => {
@@ -92,6 +92,7 @@ const boidDetails = async (token, boid) =>
 const bankDetails = async (token, bankCode) =>
   retry(async () => {
     let URL = `${BASEURI}/api/bankRequest/${bankCode}`;
+    let URL = `${BASEURI}/api/meroShare/bank`;
     const res = await fetch(URL, {
       method: "GET",
       headers: {
@@ -107,10 +108,29 @@ const bankDetails = async (token, bankCode) =>
       console.log("error");
       throw new Error(`Status Code ${statusCode}`);
     }
-
-    return resp;
+    const bankId=resp[0].id;
+    let response=await getWebBankDetails(token,bankId);
+    return response;
   });
-
+const getWebBankDetails=async(token,bankId)=>
+  retry(async()=>{
+      let URL=`${BASEURI}/api/meroShare/bank/${bankId}`;
+       const res = await fetch(URL, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
+      });
+    const resp = await res.json();
+    const statusCode = res.status;
+    if (statusCode !== 200) {
+      console.log("error");
+      throw new Error(`Status Code ${statusCode}`);
+    }
+    return resp;
+});
 const getApplicableShares = async (token) =>
   retry(async () => {
     let URL =
@@ -149,7 +169,6 @@ const getCustomerCode = async (token, code) =>
           },
         }
       );
-
       const resp = await res.json();
       const statusCode = res.status;
 
@@ -216,14 +235,14 @@ const applyIPO = async (shareCode, kitta, addTerminalLogs) => {
     try {
       const applicableData = await getCustomerCode(
         res.token,
-        data.bankDetails.bank.id
+        data.bankDetails.bankId
       );
       let customerCode = applicableData.id;
       const toSendData = {
-        accountBranchId: data.bankDetails.accountBranch.id,
+        accountBranchId: data.bankDetails.accountBranchId,
         accountNumber: data.bankDetails.accountNumber,
         appliedKitta: kitta.toString(),
-        bankId: data.bankDetails.bank.id,
+        bankId: data.bankDetails.bankId,
         boid: data.personalDetails.boid,
         companyShareId: shareCode,
         crnNumber: data.crn,
