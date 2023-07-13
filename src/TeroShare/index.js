@@ -91,7 +91,6 @@ const boidDetails = async (token, boid) =>
 
 const bankDetails = async (token, bankCode) =>
   retry(async () => {
-    let URL = `${BASEURI}/api/bankRequest/${bankCode}`;
     let URL = `${BASEURI}/api/meroShare/bank`;
     const res = await fetch(URL, {
       method: "GET",
